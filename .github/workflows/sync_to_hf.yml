@@ -17,4 +17,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push force https://ravi259:$HF_TOKEN@huggingface.co/spaces/ravi259/Loan-details-extraction-app main
+        run: git push --force https://ravi259:$HF_TOKEN@huggingface.co/spaces/ravi259/Loan-details-extraction-app main
