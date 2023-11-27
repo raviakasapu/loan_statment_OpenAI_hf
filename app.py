@@ -154,7 +154,7 @@ st.markdown("Link to the app - [PDF to extract loadn details app on 🤗 Spaces]
 
 #image uploader
 file_name = st.file_uploader(label = "Upload your PDF file here",type=['pdf','png','jpg','jpeg'])
-
+print(file_name)
 # Find the PDF path
 pdf_path = file_name # '/content/data/'+file_name+".pdf"
 #text_file_path = '/content/data/'+file_name+".txt"
