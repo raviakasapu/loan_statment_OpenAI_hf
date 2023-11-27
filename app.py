@@ -20,6 +20,7 @@ import tiktoken
 import streamlit as st
 import pandas as pd
 from io import StringIO
+import time
 import openai
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
@@ -324,11 +325,21 @@ prompt_template_2 = PromptTemplate.from_template(
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
         
+progress_text = "Operation in progress. Please wait."
+my_bar = st.progress(0, text=progress_text)
 
 
-if st.button('Get Loan Details'):
+
+if st.button('Get Loan Details',type="primary"):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
+
+        for percent_complete in range(100):
+            time.sleep(0.01)
+            my_bar.progress(percent_complete + 1, text=progress_text)
+        time.sleep(1)
+        my_bar.empty()
+
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.write(response_1)
         st.balloons()
@@ -336,6 +347,13 @@ if st.button('Get Loan Details'):
 if st.button('Get Loan Transactions'):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
+
+        for percent_complete in range(100):
+            time.sleep(0.01)
+            my_bar.progress(percent_complete + 1, text=progress_text)
+        time.sleep(1)
+        my_bar.empty()
+
         #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         response_2 = OpenAI().complete(prompt_template_2.format(loan_data=result.lower()))
         st.write(response_2)
