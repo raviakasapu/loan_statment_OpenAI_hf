@@ -3,3 +3,16 @@ opencv-python-headless
 numpy
 easyocr
 Pillow
+PyPDF2
+pdfplumber
+PIL
+pdf2image
+pytesseract
+os
+tiktoken
+pdfminer
+pdfminer-six
+python-dotenv
+llama-index
+langchain
+openai
