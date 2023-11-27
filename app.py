@@ -20,7 +20,7 @@ import tiktoken
 import streamlit as st
 import pandas as pd
 from io import StringIO
-
+import openai
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
@@ -159,8 +159,8 @@ print(file_name)
 if file_name is not None:
     st.write(file_name.name)
 
-    file_details = {"FileName":file_name.name,"FileType":file_name.type}
-    st.write(file_details)
+    file_details = {"FileName":file_name.name,"FileType":file_name.type,"file_path":file_name.upload_url}
+    st.write(file_details.file_path)
     # Find the PDF path
     pdf_path = file_name # '/content/data/'+file_name+".pdf"
     st.write(pdf_path)
