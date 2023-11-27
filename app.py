@@ -308,7 +308,7 @@ prompt_1 +  "```{loan_data} ```"
 prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
 details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
 
-Return a table of ALL transactions by
+Return a table of ALL transactions in a pandas data frame object
 
 1. COMBININNG monthly transactions for each month
 2. WITHOUT missing rows for ANY month
@@ -316,7 +316,7 @@ Return a table of ALL transactions by
 
 from text in triple tick marks.
 
-Just return the table as pandas data  frame"""
+Just return the pandas data frame  with name 'data' """
 
 prompt_template_2 = PromptTemplate.from_template(
     #prompt_2 + "```{response_1} {loan_data} ```"
