@@ -7,7 +7,6 @@ PyPDF2
 pdfplumber
 pdf2image
 pytesseract
-os
 tiktoken
 pdfminer
 pdfminer-six
