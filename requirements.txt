@@ -5,7 +5,6 @@ easyocr
 Pillow
 PyPDF2
 pdfplumber
-PIL
 pdf2image
 pytesseract
 os
