@@ -148,7 +148,7 @@ def image_to_text(image_path):
 st.title("Extract Loan details from PDF or Image")
 
 #subtitle
-st.markdown("## Loan detail extractor using OpenAI `streamlit` -  hosted on 🤗 Spaces")
+st.markdown("## Loan detail extractor using `OpenAI` and `streamlit` -  hosted on 🤗 Spaces")
 
 st.markdown("Link to the app - [PDF to extract loadn details app on 🤗 Spaces](https://huggingface.co/spaces/ravi259/Loan-details-extraction-app)")
 
@@ -156,183 +156,189 @@ st.markdown("Link to the app - [PDF to extract loadn details app on 🤗 Spaces]
 file_name = st.file_uploader(label = "Upload your PDF file here",type=['pdf','png','jpg','jpeg'])
 print(file_name)
 
-if file_name is not None:
-    st.write(file_name.name)
+def read_file_get_prompts(file_name):
+    if file_name is not None:
+        st.write(file_name.name)
 
-    file_details = {"FileName":file_name.name,"FileType":file_name.type}
-    st.write(file_details)
-    # Find the PDF path
-    pdf_path = file_name # '/content/data/'+file_name+".pdf"
-    st.write(pdf_path)
-    #text_file_path = '/content/data/'+file_name+".txt"
-    # Create a pdf file object
-    #pdfFileObj = open(+pdf_path, 'rb')
-    # Create a pdf reader object
-    pdfReaded = PyPDF2.PdfReader(file_name)
+        file_details = {"FileName":file_name.name,"FileType":file_name.type}
+        st.write(file_details)
+        # Find the PDF path
+        pdf_path = file_name # '/content/data/'+file_name+".pdf"
+        st.write(pdf_path)
+        #text_file_path = '/content/data/'+file_name+".txt"
+        # Create a pdf file object
+        #pdfFileObj = open(+pdf_path, 'rb')
+        # Create a pdf reader object
+        pdfReaded = PyPDF2.PdfReader(file_name)
 
-    # Create the dictionary to extract text from each image
-    text_per_page = {}
-    # Create a boolean variable for image detection
-    image_flag = False
+        # Create the dictionary to extract text from each image
+        text_per_page = {}
+        # Create a boolean variable for image detection
+        image_flag = False
 
-    number_of_pages = len(list(extract_pages(file_name)))
-    result = ''
+        number_of_pages = len(list(extract_pages(file_name)))
+        result = ''
 
-    # We extract the pages from the PDF
-    for pagenum, page in enumerate(extract_pages(file_name)):
+        # We extract the pages from the PDF
+        for pagenum, page in enumerate(extract_pages(file_name)):
 
-        # Initialize the variables needed for the text extraction from the page
-        pageObj = pdfReaded.pages[pagenum]
-        page_text = []
-        line_format = []
-        text_from_images = []
-        text_from_tables = []
-        page_content = []
-        # Initialize the number of the examined tables
-        table_in_page= -1
-        # Open the pdf file
-        pdf = pdfplumber.open(pdf_path)
-        # Find the examined page
-        page_tables = pdf.pages[pagenum]
-        # Find the number of tables in the page
-        tables = page_tables.find_tables()
-        if len(tables)!=0:
-            table_in_page = 0
+            # Initialize the variables needed for the text extraction from the page
+            pageObj = pdfReaded.pages[pagenum]
+            page_text = []
+            line_format = []
+            text_from_images = []
+            text_from_tables = []
+            page_content = []
+            # Initialize the number of the examined tables
+            table_in_page= -1
+            # Open the pdf file
+            pdf = pdfplumber.open(pdf_path)
+            # Find the examined page
+            page_tables = pdf.pages[pagenum]
+            # Find the number of tables in the page
+            tables = page_tables.find_tables()
+            if len(tables)!=0:
+                table_in_page = 0
 
-        # Extracting the tables of the page
-        for table_num in range(len(tables)):
-            # Extract the information of the table
-            table = extract_table(pdf_path, pagenum, table_num)
-            # Convert the table information in structured string format
-            table_string = table_converter(table)
-            # Append the table string into a list
-            text_from_tables.append(table_string)
+            # Extracting the tables of the page
+            for table_num in range(len(tables)):
+                # Extract the information of the table
+                table = extract_table(pdf_path, pagenum, table_num)
+                # Convert the table information in structured string format
+                table_string = table_converter(table)
+                # Append the table string into a list
+                text_from_tables.append(table_string)
 
-        # Find all the elements
-        page_elements = [(element.y1, element) for element in page._objs]
-        # Sort all the element as they appear in the page
-        page_elements.sort(key=lambda a: a[0], reverse=True)
-
-
-        # Find the elements that composed a page
-        for i,component in enumerate(page_elements):
-            # Extract the element of the page layout
-            element = component[1]
-
-            # Check the elements for tables
-            if table_in_page == -1:
-                pass
-            else:
-                if is_element_inside_any_table(element, page ,tables):
-                    table_found = find_table_for_element(element,page ,tables)
-                    if table_found == table_in_page and table_found != None:
-                        page_content.append(text_from_tables[table_in_page])
-                        #page_text.append('table')
-                        #line_format.append('table')
-                        table_in_page+=1
-                    # Pass this iteration because the content of this element was extracted from the tables
-                    continue
-
-            if not is_element_inside_any_table(element,page,tables):
-
-                # Check if the element is text element
-                if isinstance(element, LTTextContainer):
-                    # Use the function to extract the text and format for each text element
-                    (line_text, format_per_line) = text_extraction(element)
-                    # Append the text of each line to the page text
-                    page_text.append(line_text)
-                    # Append the format for each line containing text
-                    line_format.append(format_per_line)
-                    page_content.append(line_text)
+            # Find all the elements
+            page_elements = [(element.y1, element) for element in page._objs]
+            # Sort all the element as they appear in the page
+            page_elements.sort(key=lambda a: a[0], reverse=True)
 
 
-                # Check the elements for images
-                if isinstance(element, LTFigure):
-                    # Crop the image from PDF
-                    crop_image(element, pageObj)
-                    # Convert the croped pdf to image
-                    convert_to_images('cropped_image.pdf')
-                    # Extract the text from image
-                    image_text = image_to_text('PDF_image.png')
-                    image_text = "" # removed to remove the errors with image
-                    text_from_images.append(image_text)
-                    page_content.append(image_text)
-                    # Add a placeholder in the text and format lists
-                    #page_text.append('image')
-                    #line_format.append('image')
-                    # Update the flag for image detection
-                    image_flag = True
+            # Find the elements that composed a page
+            for i,component in enumerate(page_elements):
+                # Extract the element of the page layout
+                element = component[1]
+
+                # Check the elements for tables
+                if table_in_page == -1:
+                    pass
+                else:
+                    if is_element_inside_any_table(element, page ,tables):
+                        table_found = find_table_for_element(element,page ,tables)
+                        if table_found == table_in_page and table_found != None:
+                            page_content.append(text_from_tables[table_in_page])
+                            #page_text.append('table')
+                            #line_format.append('table')
+                            table_in_page+=1
+                        # Pass this iteration because the content of this element was extracted from the tables
+                        continue
+
+                if not is_element_inside_any_table(element,page,tables):
+
+                    # Check if the element is text element
+                    if isinstance(element, LTTextContainer):
+                        # Use the function to extract the text and format for each text element
+                        (line_text, format_per_line) = text_extraction(element)
+                        # Append the text of each line to the page text
+                        page_text.append(line_text)
+                        # Append the format for each line containing text
+                        line_format.append(format_per_line)
+                        page_content.append(line_text)
 
 
-        # Create the key of the dictionary
-        dctkey = 'Page_'+str(pagenum)
-
-        # Add the list of list as value of the page key
-        #text_per_page[dctkey]= [page_text, line_format, text_from_images,text_from_tables, page_content]
-        text_per_page[dctkey]= [page_text, text_from_images,text_from_tables, page_content]
-        #result = result.join(page_text).join(line_format).join(text_from_images).join(text_from_tables).join(page_content)
-
-
-    result = " "
-    for t in range(number_of_pages):
-        page = 'Page_'+str(t)
-    #result = result.join(map(str, text_per_page[page]))
-    for q in range(len(text_per_page[page])):
-        #print(f"{''.join(map(str, text_per_page[page][q]))}")
-        result = result + f"{''.join(map(str, text_per_page[page][q]))}"
-
-
-    from dotenv import load_dotenv, find_dotenv
-    _ = load_dotenv(find_dotenv()) # read local .env file
-    openai.api_key = os.environ['OPENAI_API_KEY']
+                    # Check the elements for images
+                    if isinstance(element, LTFigure):
+                        # Crop the image from PDF
+                        crop_image(element, pageObj)
+                        # Convert the croped pdf to image
+                        convert_to_images('cropped_image.pdf')
+                        # Extract the text from image
+                        image_text = image_to_text('PDF_image.png')
+                        image_text = "" # removed to remove the errors with image
+                        text_from_images.append(image_text)
+                        page_content.append(image_text)
+                        # Add a placeholder in the text and format lists
+                        #page_text.append('image')
+                        #line_format.append('image')
+                        # Update the flag for image detection
+                        image_flag = True
 
 
-    template="You are a helpful assistant that annalyses a bank statement annd provides answers"
-    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-    human_template= "{text}"
-    human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+            # Create the key of the dictionary
+            dctkey = 'Page_'+str(pagenum)
 
-    prompt_1 = """Loan status include details like Total Outstanding or Total Loan Amount,
-    Start Month, Tenure in Months, Rate of interest and EMI.
-
-    Extract the details from text from triple tick marks and return a JSON object ONLY with keys Total Loan Amount as Number, Start Month in format mmm-yyyy, Tenure in Months, ROI, EMI as Number.
-
-    Only return the JSON.
-    """
+            # Add the list of list as value of the page key
+            #text_per_page[dctkey]= [page_text, line_format, text_from_images,text_from_tables, page_content]
+            text_per_page[dctkey]= [page_text, text_from_images,text_from_tables, page_content]
+            #result = result.join(page_text).join(line_format).join(text_from_images).join(text_from_tables).join(page_content)
 
 
-    prompt_template_1 = PromptTemplate.from_template(
-    prompt_1 +  "```{loan_data} ```"
-    )
-    #prompt_template_1.format(loan_data=result.lower())
-    response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
-
-    prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
-    details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
-
-    Return a table of ALL transactions by
-
-    1. COMBININNG monthly transactions for each month
-    2. WITHOUT missing rows for ANY month
-    3. with columns Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
-
-    from text in triple tick marks.
-
-    Just return the table"""
-
-    prompt_template_2 = PromptTemplate.from_template(
-        prompt_2 + "```{response_1} {loan_data} ```"
-    )
-    #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
+        result = " "
+        for t in range(number_of_pages):
+            page = 'Page_'+str(t)
+        #result = result.join(map(str, text_per_page[page]))
+        for q in range(len(text_per_page[page])):
+            #print(f"{''.join(map(str, text_per_page[page][q]))}")
+            result = result + f"{''.join(map(str, text_per_page[page][q]))}"
+    return result
 
 
-    response_2 = OpenAI().complete(prompt_template_2.format(response_1 =response_1, loan_data=result.lower()))
 
+template="You are a helpful assistant that annalyses a bank statement annd provides answers"
+system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+human_template= "{text}"
+human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+
+prompt_1 = """Loan status include details like Total Outstanding or Total Loan Amount,
+Start Month, Tenure in Months, Rate of interest and EMI.
+
+Extract the details from text from triple tick marks and return a JSON object ONLY with keys Total Loan Amount as Number, Start Month in format mmm-yyyy, Tenure in Months, ROI, EMI as Number.
+
+Only return the JSON.
+"""
+
+
+prompt_template_1 = PromptTemplate.from_template(
+prompt_1 +  "```{loan_data} ```"
+)
+#prompt_template_1.format(loan_data=result.lower())
+
+
+prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
+details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
+
+Return a table of ALL transactions by
+
+1. COMBININNG monthly transactions for each month
+2. WITHOUT missing rows for ANY month
+3. with columns Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
+
+from text in triple tick marks.
+
+Just return the table"""
+
+prompt_template_2 = PromptTemplate.from_template(
+    prompt_2 + "```{response_1} {loan_data} ```"
+)
+#prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
+        
+
+
+if st.button('Get Loan Details'):
     with st.spinner("🤖 AI is at Work! "):
-        st.write(response_2)
-    #st.success("Here you go!")
-    st.balloons()
-else:
-    st.write("Upload an Image")
+        result = read_file_get_prompts(file_name)
+        response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
+        st.write(response_1)
+        st.balloons()
 
-st.caption("Made with ❤️ by @1littlecoder. Credits to 🤗 Spaces for Hosting this ")
+if st.button('Get Loan Transactions'):
+    with st.spinner("🤖 AI is at Work! "):
+        result = read_file_get_prompts(file_name)
+        #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1 =response_1, loan_data=result.lower()))
+        st.write(response_2)
+        st.balloons()
+
+st.caption("Made with ❤️ by @ravi259. Credits to 🤗 Spaces for Hosting this ")
+
