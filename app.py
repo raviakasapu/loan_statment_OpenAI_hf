@@ -159,8 +159,8 @@ print(file_name)
 if file_name is not None:
     st.write(file_name.name)
 
-    file_details = {"FileName":file_name.name,"FileType":file_name.type,"file_path":file_name.upload_url}
-    st.write(file_details.file_path)
+    file_details = {"FileName":file_name.name,"FileType":file_name.type}
+    st.write(file_details)
     # Find the PDF path
     pdf_path = file_name # '/content/data/'+file_name+".pdf"
     st.write(pdf_path)
@@ -281,8 +281,6 @@ if file_name is not None:
         #print(f"{''.join(map(str, text_per_page[page][q]))}")
         result = result + f"{''.join(map(str, text_per_page[page][q]))}"
 
-    #paid key
-    os.environ["OPENAI_API_KEY"]="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"
 
     from dotenv import load_dotenv, find_dotenv
     _ = load_dotenv(find_dotenv()) # read local .env file
