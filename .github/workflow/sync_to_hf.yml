@@ -1,5 +1,4 @@
 name: Sync to Hugging Face hub
-
 on:
   push:
     branches: [main]
@@ -11,10 +10,11 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          lfs: true
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://Amrrs:$HF_TOKEN@huggingface.co/spaces/Amrrs/image-to-text-app main
+        run: git push https://ravi259:$HF_TOKEN@huggingface.co/spaces/ravi259/Loan-details-extraction-app main
