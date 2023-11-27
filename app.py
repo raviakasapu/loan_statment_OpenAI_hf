@@ -157,7 +157,7 @@ file_name = st.file_uploader(label = "Upload your PDF file here",type=['pdf','pn
 
 # Find the PDF path
 pdf_path = file_name # '/content/data/'+file_name+".pdf"
-text_file_path = '/content/data/'+file_name+".txt"
+#text_file_path = '/content/data/'+file_name+".txt"
 # Create a pdf file object
 pdfFileObj = open(pdf_path, 'rb')
 # Create a pdf reader object
