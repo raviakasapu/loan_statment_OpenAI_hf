@@ -317,7 +317,7 @@ Return a table of ALL transactions in a pandas data frame object
 
 from text in triple tick marks.
 
-Just return the pandas data frame  with name 'data' """
+Just return JSON object with keys Month,  EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount"""
 
 prompt_template_2 = PromptTemplate.from_template(
     #prompt_2 + "```{response_1} {loan_data} ```"
@@ -328,8 +328,6 @@ prompt_template_2 = PromptTemplate.from_template(
 progress_text = "Operation in progress. Please wait."
 my_bar = st.progress(0, text=progress_text)
 
-
-
 if st.button('Get Loan Details',type="primary"):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
@@ -338,25 +336,27 @@ if st.button('Get Loan Details',type="primary"):
             time.sleep(0.01)
             my_bar.progress(percent_complete + 1, text=progress_text)
         time.sleep(1)
-        my_bar.empty()
+        
 
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.write(response_1)
+        my_bar.empty()
         st.balloons()
 
-if st.button('Get Loan Transactions'):
+if st.button('Get Loan Transactions', type="secondary"):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
 
         for percent_complete in range(100):
-            time.sleep(0.01)
+            time.sleep(0.0001)
             my_bar.progress(percent_complete + 1, text=progress_text)
         time.sleep(1)
-        my_bar.empty()
+        
 
         #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         response_2 = OpenAI().complete(prompt_template_2.format(loan_data=result.lower()))
         st.write(response_2)
+        my_bar.empty()
         st.balloons()
 
 
