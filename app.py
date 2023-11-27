@@ -161,10 +161,10 @@ def read_file_get_prompts(file_name):
         st.write(file_name.name)
 
         file_details = {"FileName":file_name.name,"FileType":file_name.type}
-        st.write(file_details)
+        #st.write(file_details)
         # Find the PDF path
         pdf_path = file_name # '/content/data/'+file_name+".pdf"
-        st.write(pdf_path)
+        #st.write(pdf_path)
         #text_file_path = '/content/data/'+file_name+".txt"
         # Create a pdf file object
         #pdfFileObj = open(+pdf_path, 'rb')
@@ -316,10 +316,11 @@ Return a table of ALL transactions by
 
 from text in triple tick marks.
 
-Just return the table"""
+Just return the table as pandas data  frame"""
 
 prompt_template_2 = PromptTemplate.from_template(
-    prompt_2 + "```{response_1} {loan_data} ```"
+    #prompt_2 + "```{response_1} {loan_data} ```"
+    prompt_2 + "``` {loan_data} ```"
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
         
@@ -336,7 +337,7 @@ if st.button('Get Loan Transactions'):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
         #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
-        response_2 = OpenAI().complete(prompt_template_2.format(response_1 =response_1, loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(loan_data=result.lower()))
         st.write(response_2)
         st.balloons()
 
