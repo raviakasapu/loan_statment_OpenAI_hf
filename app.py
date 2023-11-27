@@ -24,8 +24,17 @@ from io import StringIO
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
-
+from llama_index.llms import OpenAI
 # Create function to extract text
+from langchain.prompts import PromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    AIMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+
+
 
 def text_extraction(element):
     # Extracting the text from the in line text element
@@ -264,26 +273,63 @@ for t in range(number_of_pages):
     #print(f"{''.join(map(str, text_per_page[page][q]))}")
     result = result + f"{''.join(map(str, text_per_page[page][q]))}"
 
+#paid key
+os.environ["OPENAI_API_KEY"]="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"
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv()) # read local .env file
+openai.api_key = os.environ['OPENAI_API_KEY']
+
+
+template="You are a helpful assistant that annalyses a bank statement annd provides answers"
+system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+human_template= "{text}"
+human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+
+prompt_1 = """Loan status include details like Total Outstanding or Total Loan Amount,
+Start Month, Tenure in Months, Rate of interest and EMI.
+
+Extract the details from text from triple tick marks and return a JSON object ONLY with keys Total Loan Amount as Number, Start Month in format mmm-yyyy, Tenure in Months, ROI, EMI as Number.
+
+Only return the JSON.
+"""
+
+
+prompt_template_1 = PromptTemplate.from_template(
+  prompt_1 +  "```{loan_data} ```"
+ )
+#prompt_template_1.format(loan_data=result.lower())
+response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
+
+prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
+details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
+
+Return a table of ALL transactions by
+
+1. COMBININNG monthly transactions for each month
+2. WITHOUT missing rows for ANY month
+3. with columns Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
+
+from text in triple tick marks.
+
+Just return the table"""
+
+prompt_template_2 = PromptTemplate.from_template(
+    prompt_2 + "```{response_1} {loan_data} ```"
+ )
+#prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
+
+
+response_2 = OpenAI().complete(prompt_template_2.format(response_1 =response_1, loan_data=result.lower()))
+
+
 
 reader = load_model() #load model
 
 if file_name is not None:
 
-    input_image = Image.open(imfage) #read image
-    st.image(input_image) #display image
-
     with st.spinner("🤖 AI is at Work! "):
-        
-
-        result = reader.readtext(np.array(input_image))
-
-        result_text = [] #empty list for results
-
-
-        for text in result:
-            result_text.append(text[1])
-
-        st.write(result_text)
+        st.write(response_2)
     #st.success("Here you go!")
     st.balloons()
 else:
