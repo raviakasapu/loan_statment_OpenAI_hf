@@ -326,7 +326,7 @@ prompt_1 +  "```{loan_data} ```"
 #prompt_template_1.format(loan_data=result.lower())
 
 
-prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
+prompt_2_temp = """Loan transaction details are the information of transaction happened during a period and contains
 details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
 
 Return a table of ALL transactions in a pandas data frame object
@@ -338,6 +338,20 @@ Return a table of ALL transactions in a pandas data frame object
 from text in triple tick marks.
 
 Just return JSON object with keys Month,  EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
+ONLY return the JSON.
+"""
+
+prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
+details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
+
+Return a JSON object 
+
+1. COMBININNG monthly transactions for each month
+2. WITHOUT missing rows for ANY month
+3. with keys Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
+
+from text in triple tick marks.
+
 ONLY return the JSON.
 """
 
