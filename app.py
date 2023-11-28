@@ -389,7 +389,7 @@ async def get_completion(prompt_template, response="", data=""):
 if st.button('Get Loan Transactions', type="primary"):
     with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
-        st.write(result)
+        #st.write(result)
         
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
