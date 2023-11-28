@@ -299,7 +299,7 @@ def create_dataframe_from_text_2(text):
     data_dict = json.loads(text)
     
     # Extract the 'transactions' data
-    transactions_data = data_dict.get('transactions', [])
+    transactions_data = data_dict.get('Loan Transaction Details', [])
     
     # Convert the 'transactions' list of dictionaries to a Pandas DataFrame
     df = pd.DataFrame(transactions_data)
@@ -359,7 +359,7 @@ ONLY return the JSON.
 """
 
 prompt_template_2 = PromptTemplate.from_template(
-    prompt_2 + "```{response} {loan_data} ```"
+    prompt_2 + "```{response_1} {loan_data} ```"
     #prompt_2 + "```{loan_data} ```"
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
@@ -388,10 +388,8 @@ if st.button('Get Loan Transactions', type="primary"):
         
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
-        
-        #response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
-        #response_2 = OpenAI().complete(prompt_template_2.format(response = response.text, loan_data=result.lower()))
-        response_2 = get_completion(prompt_template_2, response_1.text, result)
+
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
 
