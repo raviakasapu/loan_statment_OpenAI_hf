@@ -344,9 +344,9 @@ ONLY return the JSON.
 prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
 details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid,  Interest Amount paid, outstanding Balance after payment of EMI.
 
-Return a JSON object called transactions by
+Return a JSON object called transactions for all the months by
 
-1. COMBININNG monthly transactions for each month
+1. COMBININNG all the monthly transactions for each month
 2. WITHOUT missing rows for ANY month
 3. and get data for all the months
 3. with keys Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
@@ -373,7 +373,9 @@ if st.button('Get Loan Details',type="primary"):
         result = read_file_get_prompts(file_name)
         
         #st.write(result.lower())
-        response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
+        response_1 = OpenAI().complete(
+            model="gpt-4-1106-preview",
+            prompt=prompt_template_1.format(loan_data=result.lower()))
         st.table(create_dataframe_from_text(response_1.text))
         set_stage(response_1)
         
@@ -394,7 +396,10 @@ if st.button('Get Loan Transactions', type="primary"):
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
 
-        response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
+        response_2 = OpenAI().complete(
+            model="gpt-4-1106-preview",
+            prompt = prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower())
+        )
         #st.write(response_2)
         df = create_dataframe_from_text_2(response_2.text)
         st.write(df.size)
