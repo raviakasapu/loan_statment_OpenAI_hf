@@ -342,12 +342,14 @@ ONLY return the JSON.
 """
 
 prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
-details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid, outstanding Balance after payment of EMI.
+details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid,  Interest Amount paid, outstanding Balance after payment of EMI.
+
 
 Return a JSON object 
 
 1. COMBININNG monthly transactions for each month
 2. WITHOUT missing rows for ANY month
+3. and get data for all the months
 3. with keys Month, EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
 
 from text in triple tick marks.
@@ -356,8 +358,8 @@ ONLY return the JSON.
 """
 
 prompt_template_2 = PromptTemplate.from_template(
-    #prompt_2 + "```{response_1} {loan_data} ```"
-    prompt_2 + "``` {loan_data} ```"
+    prompt_2 + "```{response_1} {loan_data} ```"
+    #prompt_2 + "```{loan_data} ```"
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
         
@@ -369,12 +371,12 @@ if st.button('Get Loan Details',type="primary"):
         progress_text = "Operation in progress. Please wait."
         my_bar = st.progress(0, text=progress_text)
 
-        for percent_complete in range(100):
+        for percent_complete in range(1000):
             time.sleep(0.01)
             my_bar.progress(percent_complete + 1, text=progress_text)
         time.sleep(1)
         
-
+        st.write(result.lower())
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.table(create_dataframe_from_text(response_1.text))
         my_bar.empty()
@@ -387,14 +389,14 @@ if st.button('Get Loan Transactions', type="secondary"):
         progress_text = "Operation in progress. Please wait."
         my_bar = st.progress(0, text=progress_text)
 
-        for percent_complete in range(100):
-            time.sleep(0.0001)
+        for percent_complete in range(10000):
+            time.sleep(0.1)
             my_bar.progress(percent_complete + 1, text=progress_text)
         time.sleep(1)
         
-
-        #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
-        response_2 = OpenAI().complete(prompt_template_2.format(loan_data=result.lower()))
+        st.write(result.lower())
+        response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
         my_bar.empty()
