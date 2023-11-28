@@ -21,6 +21,7 @@ import streamlit as st
 import pandas as pd
 from io import StringIO
 import time
+import json
 import openai
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
@@ -284,6 +285,25 @@ def read_file_get_prompts(file_name):
             result = result + f"{''.join(map(str, text_per_page[page][q]))}"
     return result
 
+def create_dataframe_from_text(text):
+    data_dict = json.loads(text)
+    
+    # Convert the dictionary to a Pandas DataFrame
+    df = pd.DataFrame([data_dict])
+    
+    return df
+
+def create_dataframe_from_text_2(text):
+    # Convert text to a Python dictionary
+    data_dict = json.loads(text)
+    
+    # Extract the 'transactions' data
+    transactions_data = data_dict.get('transactions', [])
+    
+    # Convert the 'transactions' list of dictionaries to a Pandas DataFrame
+    df = pd.DataFrame(transactions_data)
+    
+    return df
 
 
 template="You are a helpful assistant that annalyses a bank statement annd provides answers"
@@ -317,7 +337,9 @@ Return a table of ALL transactions in a pandas data frame object
 
 from text in triple tick marks.
 
-Just return JSON object with keys Month,  EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount"""
+Just return JSON object with keys Month,  EMI Paid, Payment Status, Interest Amount, Principal Amount, Balance Amount
+ONLY return the JSON.
+"""
 
 prompt_template_2 = PromptTemplate.from_template(
     #prompt_2 + "```{response_1} {loan_data} ```"
@@ -325,12 +347,13 @@ prompt_template_2 = PromptTemplate.from_template(
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
         
-progress_text = "Operation in progress. Please wait."
-my_bar = st.progress(0, text=progress_text)
 
 if st.button('Get Loan Details',type="primary"):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
+
+        progress_text = "Operation in progress. Please wait."
+        my_bar = st.progress(0, text=progress_text)
 
         for percent_complete in range(100):
             time.sleep(0.01)
@@ -339,13 +362,16 @@ if st.button('Get Loan Details',type="primary"):
         
 
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
-        st.write(response_1)
+        st.table(create_dataframe_from_text(response_1.text))
         my_bar.empty()
         st.balloons()
 
 if st.button('Get Loan Transactions', type="secondary"):
     with st.spinner("🤖 AI is at Work! "):
         result = read_file_get_prompts(file_name)
+
+        progress_text = "Operation in progress. Please wait."
+        my_bar = st.progress(0, text=progress_text)
 
         for percent_complete in range(100):
             time.sleep(0.0001)
@@ -355,7 +381,8 @@ if st.button('Get Loan Transactions', type="secondary"):
 
         #response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         response_2 = OpenAI().complete(prompt_template_2.format(loan_data=result.lower()))
-        st.write(response_2)
+        #st.write(response_2)
+        st.table(create_dataframe_from_text_2(response_2.text))
         my_bar.empty()
         st.balloons()
 
