@@ -397,7 +397,7 @@ if st.button('Get Loan Transactions', type="primary"):
         #st.write(response_2)
         df = create_dataframe_from_text_2(response_2.text)
         st.write(df.size)
-        #st.table(create_dataframe_from_text_2(response_2.text))
+        st.table(create_dataframe_from_text_2(response_2.text))
 
         st.balloons()
 
