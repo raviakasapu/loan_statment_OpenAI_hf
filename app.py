@@ -365,41 +365,25 @@ prompt_template_2 = PromptTemplate.from_template(
         
 
 if st.button('Get Loan Details',type="primary"):
-    with st.spinner("🤖 AI is at Work! "):
+    with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
-
-        progress_text = "Operation in progress. Please wait."
-        my_bar = st.progress(0, text=progress_text)
-
-        for percent_complete in range(1000):
-            time.sleep(0.01)
-            my_bar.progress(percent_complete + 1, text=progress_text)
-        time.sleep(1)
         
         st.write(result.lower())
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.table(create_dataframe_from_text(response_1.text))
-        my_bar.empty()
+
         st.balloons()
 
 if st.button('Get Loan Transactions', type="secondary"):
-    with st.spinner("🤖 AI is at Work! "):
+    with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
-
-        progress_text = "Operation in progress. Please wait."
-        my_bar = st.progress(0, text=progress_text)
-
-        for percent_complete in range(10000):
-            time.sleep(0.1)
-            my_bar.progress(percent_complete + 1, text=progress_text)
-        time.sleep(1)
         
         st.write(result.lower())
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
-        my_bar.empty()
+
         st.balloons()
 
 
