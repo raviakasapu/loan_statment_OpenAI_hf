@@ -394,7 +394,7 @@ if st.button('Get Loan Transactions', type="primary"):
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
 
-        #response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
         #st.write(response_2)
         df = create_dataframe_from_text_2(response_2.text)
         st.write(df.size)
