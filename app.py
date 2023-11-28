@@ -279,10 +279,10 @@ def read_file_get_prompts(file_name):
         result = " "
         for t in range(number_of_pages):
             page = 'Page_'+str(t)
-        #result = result.join(map(str, text_per_page[page]))
-        for q in range(len(text_per_page[page])):
-            #print(f"{''.join(map(str, text_per_page[page][q]))}")
-            result = result + f"{''.join(map(str, text_per_page[page][q]))}"
+            #result = result.join(map(str, text_per_page[page]))
+            for q in range(len(text_per_page[page])):
+                #print(f"{''.join(map(str, text_per_page[page][q]))}")
+                result = result + f"{''.join(map(str, text_per_page[page][q]))}"
 
     return result
 
@@ -389,11 +389,12 @@ async def get_completion(prompt_template, response="", data=""):
 if st.button('Get Loan Transactions', type="primary"):
     with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
+        st.write(result)
         
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
 
-        response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
+        #response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
         #st.write(response_2)
         df = create_dataframe_from_text_2(response_2.text)
         st.write(df.size)
