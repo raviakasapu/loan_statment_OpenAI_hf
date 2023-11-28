@@ -361,7 +361,13 @@ prompt_template_2 = PromptTemplate.from_template(
     #prompt_2 + "```{loan_data} ```"
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
-        
+if 'response' not in st.session_state:
+    st.session_state.stage = ''
+
+def set_stage(response):
+    st.session_state.response = response.text
+
+
 if st.button('Get Loan Details',type="primary"):
     with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
@@ -369,14 +375,14 @@ if st.button('Get Loan Details',type="primary"):
         #st.write(result.lower())
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.table(create_dataframe_from_text(response_1.text))
-        text_result = response_1.text
+        set_stage(response_1)
         
         st.balloons()
 
 async def get_completion(prompt_template, response="", data=""):
     # Other code...
     # Wait for completion of OpenAI().complete()
-    completion_result = await OpenAI().complete(prompt_template.format(response = response, loan_data=data.lower()))
+    completion_result = await OpenAI().complete(prompt_template.format(response = st.session_state.response, loan_data=data.lower()))
     return completion_result
 
 
@@ -387,7 +393,7 @@ if st.button('Get Loan Transactions', type="primary"):
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
 
-        response_2 = OpenAI().complete(prompt_template_2.format(response_1=text_result, loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1=st.session_state.response, loan_data=result.lower()))
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
 
