@@ -397,6 +397,5 @@ if st.button('Get Loan Transactions', type="primary"):
 
         st.balloons()
 
-
 st.caption("Made with ❤️ by @ravi259. Credits to 🤗 Spaces for Hosting this ")
 
