@@ -359,7 +359,7 @@ ONLY return the JSON.
 """
 
 prompt_template_2 = PromptTemplate.from_template(
-    prompt_2 + "```{response_1} {loan_data} ```"
+    prompt_2 + "```{response} {loan_data} ```"
     #prompt_2 + "```{loan_data} ```"
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
@@ -375,7 +375,7 @@ if st.button('Get Loan Details',type="primary"):
 
         st.balloons()
 
-async def get_completion(prompt_template, response, data):
+async def get_completion(prompt_template, response="", data=""):
     # Other code...
     # Wait for completion of OpenAI().complete()
     completion_result = await OpenAI().complete(prompt_template.format(response = response, loan_data=data.lower()))
@@ -387,10 +387,11 @@ if st.button('Get Loan Transactions', type="primary"):
         result = read_file_get_prompts(file_name)
         
         #st.write(result.lower())
-        response_1 = get_completion(prompt_template_1, "",  result)
+        #response_1 = get_completion(prompt_template_1, "",  result)
         
         #response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
-        response_2 = get_completion(prompt_template_2, response_1.text,  result)
+        #response_2 = OpenAI().complete(prompt_template_2.format(response = response.text, loan_data=result.lower()))
+        response_2 = get_completion(prompt_template_2, response_1.text, result)
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
 
