@@ -299,13 +299,12 @@ def create_dataframe_from_text_2(text):
     data_dict = json.loads(text)
     
     # Extract the 'transactions' data
-    transactions_data = data_dict.get('Loan Transaction Details', [])
+    transactions_data = data_dict.get('transactions', [])
     
     # Convert the 'transactions' list of dictionaries to a Pandas DataFrame
     df = pd.DataFrame(transactions_data)
     
     return df
-
 
 template="You are a helpful assistant that annalyses a bank statement annd provides answers"
 system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -345,8 +344,7 @@ ONLY return the JSON.
 prompt_2 = """Loan transaction details are the information of transaction happened during a period and contains
 details like Month, EMI as monthly amount paid, Payment status as Paid or Unpaid,  Interest Amount paid, outstanding Balance after payment of EMI.
 
-
-Return a JSON object 
+Return a JSON object called transactions by
 
 1. COMBININNG monthly transactions for each month
 2. WITHOUT missing rows for ANY month
@@ -364,7 +362,6 @@ prompt_template_2 = PromptTemplate.from_template(
 )
 #prompt_template_2.format(response_1 =response_1, loan_data=result.lower())
         
-
 if st.button('Get Loan Details',type="primary"):
     with st.spinner("🤖 Operation in progress. Please wait! 🤖 "):
         result = read_file_get_prompts(file_name)
@@ -372,7 +369,8 @@ if st.button('Get Loan Details',type="primary"):
         #st.write(result.lower())
         response_1 = OpenAI().complete(prompt_template_1.format(loan_data=result.lower()))
         st.table(create_dataframe_from_text(response_1.text))
-
+        text_result = response_1.text
+        
         st.balloons()
 
 async def get_completion(prompt_template, response="", data=""):
@@ -389,7 +387,7 @@ if st.button('Get Loan Transactions', type="primary"):
         #st.write(result.lower())
         #response_1 = get_completion(prompt_template_1, "",  result)
 
-        response_2 = OpenAI().complete(prompt_template_2.format(response_1=response_1.text, loan_data=result.lower()))
+        response_2 = OpenAI().complete(prompt_template_2.format(response_1=text_result, loan_data=result.lower()))
         #st.write(response_2)
         st.table(create_dataframe_from_text_2(response_2.text))
 
