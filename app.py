@@ -365,7 +365,7 @@ if 'response' not in st.session_state:
     st.session_state.stage = ''
 
 def set_stage(response):
-    st.session_state.response = response.text
+    st.session_state.response = response
 
 
 if st.button('Get Loan Details',type="primary"):
